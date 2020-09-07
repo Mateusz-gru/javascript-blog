@@ -121,7 +121,39 @@ function generateTitleLinks(customSelector = '') {
 
 generateTitleLinks();
 
+function calculateTagsParams() {
+
+  let allTags = {};
+
+  const params = {
+      max: 0,
+      min: 999999
+  };
+  for (let tag in allTags) {
+      console.log(tag + ' is used ' + allTags[tag] + ' times');
+
+      params.max = Math.max(allTags[tag], params.max);
+      params.min = Math.min(allTags[tag], params.min);
+  }
+  return params;
+}
+
+//calculateTagClass
+
+function calculateTagClass(count, params) {
+  const normalizedCount = count - params.min;
+  const normalizedMax = params.max - params.min;
+  const percentage = normalizedCount / normalizedMax;
+  const classNumber = Math.floor(percentage * (optCloudClassCount - 1) + 1);
+  const tagCloudClass = optCloudClassPrefix + classNumber;
+  return tagCloudClass;
+}
+
 function generateTags() {
+
+  /* [NEW] create a new variable allTags with an empty array */
+
+  let allTags = {};
 
   /* find all articles */
 
@@ -159,6 +191,19 @@ function generateTags() {
 
       html = html + tagLink + (' ');
 
+      /* [NEW] check if this link is NOT already in allTags */
+
+      if (!allTags[tag]) {
+
+        /* [NEW] add tag to allTags object */
+
+        allTags[tag] = 1;
+        } else {
+          allTags[tag]++;
+        }
+
+      }
+
       /* END LOOP: for each tag */
 
     }
@@ -167,8 +212,43 @@ function generateTags() {
 
     tagsWrapper.innerHTML = html;
 
+   /* END LOOP: for every article: */
+
   }
-  /* END LOOP: for every article: */
+
+  /* [NEW] find list of tags in right column */
+
+  const tagList = document.querySelector('.tags');
+
+  const tagsParams = calculateTagsParams(allTags);
+  console.log('tagsParams:', tagsParams)
+
+  /* [NEW] create variable for all links HTML code */
+
+  let allTagsHTML = '';
+
+  /* [NEW] START LOOP: for each tag in allTags: */
+
+  for (let tag in allTags) {
+
+    /* [NEW] generate code of a link and add it to allTagsHTML */
+
+    //allTagsHTML += tag + ' (' + allTags[tag] + ') ';
+
+    const tagLinkHTML = '<li><a class="' + calculateTagClass(allTags[tag], tagsParams) + '" href="#tag-' + tag + '"><span>' + tag + ' (' + allTags[tag] + ') ' + '</span></a></li>';
+    console.log('tagLinkHTML:', tagLinkHTML);
+
+    allTagsHTML += tagLinkHTML;
+    console.log(allTagsHTML);
+
+    /* [NEW] END LOOP: for each tag in allTags: */
+
+  }
+
+  /*[NEW] add HTML from allTagsHTML to tagList */
+
+  tagList.innerHTML = allTagsHTML;
+
 }
 
 generateTags();
